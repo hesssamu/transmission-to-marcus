@@ -102,32 +102,39 @@ function duck(on){ if(!soundOn) return; score.volume = on ? 0.10 : 0.6; }
 
 /* ---------- video play/pause + sound on scroll ---------- */
 const vids = [...document.querySelectorAll('.holo video')];
+
+// tap a clip = unmute it (a real user gesture, reliable on every platform)
 vids.forEach(v=>{
   const tap = v.parentElement.querySelector('.tap-sound');
   v.parentElement.addEventListener('click', ()=>{
-    v.muted = !v.muted;
-    tap.style.display = v.muted ? '' : 'none';
-    duck(!v.muted);
-    if(v.muted) score.volume = soundOn?0.6:0;
+    if(v.muted){ v.muted=false; v.play().catch(()=>{}); tap.style.display='none'; duck(true); }
+    else { v.muted=true; tap.style.display=''; if(!anyUnmutedPlaying()) score.volume = soundOn?0.6:0; }
   });
 });
+function anyUnmutedPlaying(){ return vids.some(o=>!o.paused && !o.muted); }
 
 const vio = new IntersectionObserver((entries)=>{
   entries.forEach(e=>{
     const v = e.target;
     const tap = v.parentElement.querySelector('.tap-sound');
     if(e.isIntersecting && e.intersectionRatio>0.55){
-      vids.forEach(o=>{ if(o!==v){ o.pause(); } });
+      vids.forEach(o=>{ if(o!==v){ o.pause(); o.muted=true; } });
       warpBurst();
       v.currentTime = 0;
+      v.muted = true;                       // ALWAYS start muted -> autoplay allowed on iOS
       v.play().then(()=>{
-        if(soundOn){ v.muted=false; if(v.muted===false){ tap.style.display='none'; duck(true);} }
+        if(!soundOn){ tap.style.display=''; return; }
+        v.muted = false;                    // try sound...
+        v.play().then(()=>{                 // ...succeeds on desktop / with activation
+          tap.style.display='none'; duck(true);
+        }).catch(()=>{                       // iOS refuses w/o tap -> stay muted, don't freeze
+          v.muted = true; tap.style.display='';
+          score.volume = soundOn?0.6:0; v.play().catch(()=>{});
+        });
       }).catch(()=>{});
-      // if browser refused unmute, keep hint visible
-      setTimeout(()=>{ if(v.muted){ tap.style.display=''; score.volume = soundOn?0.6:0; } }, 250);
     } else {
-      v.pause();
-      if(!vids.some(o=>!o.paused && !o.muted)) score.volume = soundOn?0.6:0;
+      v.pause(); v.muted = true;
+      if(!anyUnmutedPlaying()) score.volume = soundOn?0.6:0;
     }
   });
 },{threshold:[0,0.55,0.9]});
