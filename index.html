@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#000000">
+<title>Transmission to Marcus</title>
+<meta name="description" content="A transmission from across the galaxy.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=News+Cycle:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="stars"></canvas>
+<audio id="score" src="score.mp3" loop preload="auto"></audio>
+
+<main id="scroll">
+
+  <!-- INTRO -->
+  <section class="snap intro" id="intro">
+    <div class="intro-inner">
+      <p class="blue-line">A long time ago, in an office<br>far, far away....</p>
+      <button id="begin" class="begin-btn">BEGIN TRANSMISSION &#9654;</button>
+      <p class="hint">tap to start &middot; sound on</p>
+    </div>
+  </section>
+
+  <!-- OPENING CRAWL -->
+  <section class="snap crawl-section" id="crawl">
+    <div class="crawl-fade-top"></div>
+    <div class="crawl-viewport">
+      <div class="crawl-content" id="crawlContent">
+        <p class="crawl-episode">EPISODE XXXVII</p>
+        <h1 class="crawl-title">THE BELATED<br>AWAKENING</h1>
+        <p>It is a period of celebration. Across the galaxy, word has spread that the COMMANDER known as MARCUS has completed another orbit around the sun.</p>
+        <p>His loyal crew prepared their messages of honor &mdash; but a disturbance in the Force (and a busy week) delayed the transmission by several rotations.</p>
+        <p>Now, at last, the signal breaks through. From distant systems and noisy home offices, the crew sends their words across the stars.</p>
+        <p>Soon the Commander and his ally will journey to the far world of CHINA. But first, a message awaits&hellip;</p>
+      </div>
+    </div>
+    <div class="scroll-cue">&#9660; scroll to receive</div>
+  </section>
+
+  <!-- TRANSMISSIONS injected by app.js -->
+
+</main>
+
+<button id="replay" class="replay-btn" hidden>&#8635; replay transmission</button>
+<button id="mute" class="mute-btn" hidden aria-label="toggle sound">&#128266;</button>
+
+<script src="app.js"></script>
+</body>
+</html>
