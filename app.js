@@ -33,8 +33,8 @@ function makeTx(c, label){
       <span class="corner c-tl"></span><span class="corner c-tr"></span>
       <span class="corner c-bl"></span><span class="corner c-br"></span>
       <span class="scan"></span>
-      <video src="${c.file}" ${c.poster?`poster="${c.poster}"`:''} playsinline preload="metadata" muted></video>
-      <div class="tap-sound">tap for sound</div>
+      <video src="${c.file}" ${c.poster?`poster="${c.poster}"`:''} playsinline preload="auto" muted></video>
+      <div class="tap-sound" style="display:none">tap for sound</div>
     </div>`;
   return s;
 }
@@ -83,11 +83,33 @@ function warpBurst(){ warp = 1; }
 const begin = document.getElementById('begin');
 const crawl = document.getElementById('crawlContent');
 const muteBtn = document.getElementById('mute');
-begin.addEventListener('click', ()=>{
+
+/* Prime audio on the first real gesture so clips can auto-play WITH sound later.
+   iOS only grants a clip the right to play unmuted if it was first played from a
+   user gesture — so we briefly play+pause every clip here. The score starts at the
+   same instant and masks the few-ms unlock blip. */
+let primed = false;
+function primeAll(){
+  if(primed) return; primed = true;
   soundOn = true;
   score.volume = 0.6;
   score.play().catch(()=>{});
   muteBtn.hidden = false;
+  document.querySelectorAll('.holo video').forEach(v=>{
+    try{
+      v.muted = false;
+      const p = v.play();
+      if(p && p.then) p.then(()=>{ v.pause(); v.currentTime = 0; v.muted = true; })
+                       .catch(()=>{ try{ v.pause(); }catch(e){} v.muted = true; });
+      else { v.pause(); v.muted = true; }
+    }catch(e){ v.muted = true; }
+  });
+}
+// any first tap anywhere primes audio (covers users who scroll past BEGIN)
+document.addEventListener('pointerdown', primeAll, {capture:true});
+
+begin.addEventListener('click', ()=>{
+  primeAll();
   document.getElementById('crawl').scrollIntoView({behavior:'smooth'});
   warpBurst();
   setTimeout(()=> crawl.classList.add('play'), 600);
